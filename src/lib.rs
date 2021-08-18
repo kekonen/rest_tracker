@@ -107,7 +107,8 @@ impl Task {
     }
 }
 
-fn main() {
+pub fn run<F>(f: F) 
+where F: Fn(&str) {
     let got_line: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     let got_line_mx = got_line.clone();
     let done: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
@@ -133,7 +134,7 @@ fn main() {
 
         let task = Task::new(1000_i64 * 25 * 60);
         let mut previous_state = task.peek();
-        println!("Started a new task! till: {}", task.till().unwrap().format("%H:%M:%S").to_string());
+        f(&format!("Started a new task! till: {}", task.till().unwrap().format("%H:%M:%S").to_string()));
 
         loop {
             thread::sleep(std::time::Duration::from_millis(500));
@@ -141,7 +142,7 @@ fn main() {
             let line = *got_line.lock().unwrap();
             if line {
                 *got_line.lock().unwrap() = false;
-                println!("Done!!!!");
+                f("Done!!!!");
                 break
             }
     
@@ -150,16 +151,16 @@ fn main() {
             if state != previous_state {
                 match state {
                     TaskState::InitialWait => {
-                        println!("Time started! till: {}", task.till().unwrap().format("%H:%M:%S").to_string())
+                        f(&format!("Time started! till: {}", task.till().unwrap().format("%H:%M:%S").to_string()))
                     },
                     TaskState::HalfedExtension => {
-                        println!("Time elapsed! extending half! till: {}", task.till().unwrap().format("%H:%M:%S").to_string())
+                        f(&format!("Time elapsed! extending half! till: {}", task.till().unwrap().format("%H:%M:%S").to_string()))
                     },
                     TaskState::QuarteredExtension => {
-                        println!("Time elapsed! extending quarter! till: {}", task.till().unwrap().format("%H:%M:%S").to_string())
+                        f(&format!("Time elapsed! extending quarter! till: {}", task.till().unwrap().format("%H:%M:%S").to_string()))
                     },
                     TaskState::Failed => {
-                        println!("Failed!");
+                        f("Failed!");
                         break
                     },
                     _ => {},

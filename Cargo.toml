@@ -3,5 +3,7 @@ name = "rest_tracker"
 version = "0.1.0"
 edition = "2018"
 
+default-run = "rest_tracker"
+
 [dependencies]
 chrono = "0.4.19"
