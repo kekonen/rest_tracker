@@ -1,13 +1,9 @@
 use chrono::{Local, Duration};
 use chrono::prelude::*;
-use clokwerk::{Scheduler, TimeUnits};
-// Import week days and WeekDay
-use clokwerk::Interval::*;
 use std::thread;
 use std::cell::RefCell;
 use std::io::{self, BufRead};
 use std::sync::{Arc, Mutex};
-// use std::time::Duration;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum TaskState {
@@ -99,7 +95,6 @@ impl Task {
                 self.next(None, TaskState::Failed);
             },
             TaskState::Failed => {
-                // self.next(None, TaskState::Failed);
             }
         }
     }
@@ -123,7 +118,7 @@ fn main() {
         let mut iterator = stdin.lock().lines();
 
         loop {
-            let done = *done.lock().unwrap() == true;
+            let done = *done.lock().unwrap();
             if !done {
                 let line1 = iterator.next().unwrap().unwrap();
                 *got_line_mx.lock().unwrap() = true;
@@ -141,14 +136,16 @@ fn main() {
         println!("Started a new task! till: {}", task.till().unwrap().format("%H:%M:%S").to_string());
 
         loop {
-            let line = *got_line.lock().unwrap() == true;
+            thread::sleep(std::time::Duration::from_millis(500));
+
+            let line = *got_line.lock().unwrap();
             if line {
                 *got_line.lock().unwrap() = false;
                 println!("Done!!!!");
                 break
             }
     
-            thread::sleep(std::time::Duration::from_millis(500));
+            
             let state = task.peek();
             if state != previous_state {
                 match state {
@@ -169,13 +166,6 @@ fn main() {
                 }
             }
             
-            
-            // if true {
-            //     println!("DONE!: {:?} -> '{}'", state, line)
-            // } else {
-            //     println!("Nope: {:?}", task)
-            // }
-
             previous_state = state;
         }
     }
